@@ -121,9 +121,9 @@ void Robot::Driver()
         if (flywheelShoot) 
         {Flywheel.move_velocity(36000);}
         else if (flywheelSuck)
-        {Flywheel.move_velocity(36000);}
-        else
         {Flywheel = 0;};
+        // else
+        // {Flywheel = 0;};
         ckEXPAND();
         delay(5);
     }
