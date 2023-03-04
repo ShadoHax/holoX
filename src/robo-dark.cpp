@@ -119,14 +119,8 @@ void Robot::Driver()
         bool flywheelShoot = master.get_digital(DIGITAL_L2);
         bool flywheelSuck = master.get_digital(DIGITAL_L1);
         // recorder(Lp, Rp, intakeIn, intakeOut, flywheelShoot, flywheelSuck, master.get_digital(DIGITAL_X), master.get_digital(DIGITAL_B), master.get_digital(DIGITAL_UP), master.get_digital(DIGITAL_DOWN), master.get_digital(DIGITAL_A), master.get_digital(DIGITAL_LEFT));
-        if (master.get_digital(DIGITAL_LEFT)) 
-        {
-            throttled = true;
-        }
-        else if (master.get_digital(DIGITAL_A))
-        {
-            throttled = false;
-        }
+        if (master.get_digital(DIGITAL_LEFT)) throttled = true;
+        else if (master.get_digital(DIGITAL_A)) throttled = false;
         if (throttled)
         {
             int Lp = Lp * 0.6;
@@ -139,18 +133,13 @@ void Robot::Driver()
         R2.move(Rp);
         R3.move(Rp);
         // Intake control is simple, no PID, we want constant rotation rate to have stable roller control
-        if (intakeIn) 
-        {IntakeRoller = 125;}
-        else if (intakeOut) 
-        {IntakeRoller = -125;}
-        else 
-        {IntakeRoller = 0;};
+        if (intakeIn) IntakeRoller = 125;
+        else if (intakeOut) IntakeRoller = -125;
+        else IntakeRoller = 0;
         // Flywheel control is determined entirely by PROS builtin PID, so we just set the target velocity and it does the rest
-        if (flywheelShoot) 
-        {Flywheel = 126;}
-        else if (flywheelSuck)
-        {Flywheel = 0;};
-        lcd::print(3, std::to_string(Flywheel.get_actual_velocity()).c_str());
+        if (flywheelShoot) Flywheel = 126;
+        else if (flywheelSuck) Flywheel = 0;
+        lcd::set_text(3, std::to_string(Flywheel.get_actual_velocity()));
         // else
         // {Flywheel = 0;};
         ckEXPAND();
