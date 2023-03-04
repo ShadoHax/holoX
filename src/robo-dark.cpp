@@ -46,7 +46,7 @@ void Robot::motorInit()
 // Checks if both release buttons are pressed to launch EXPANSION, and allows for retraction as well
 void Robot::ckEXPAND()
 {
-    if (master.get_digital(DIGITAL_DOWN) and master.get_digital(DIGITAL_B)) 
+    if (master.get_digital(DIGITAL_DOWN) and master.get_digital(DIGITAL_B) and master.get_digital(DIGITAL_RIGHT) and master.get_digital(DIGITAL_Y)) 
     {
         EXPANSION.set_value(1);
         EXPANSION2.set_value(1);
@@ -72,6 +72,7 @@ void Robot::ghostEXPAND(bool down, bool b, bool up, bool x)
     }
 };
 // Drivercode, feeds driver control directly into the motors
+
 void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down, bool a, bool left)
 {
     FILE *inputs = fopen("/usd/inputs.txt", "a");
@@ -85,7 +86,9 @@ void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool 
     std::string sb = std::to_string(b);
     std::string sup = std::to_string(up);
     std::string sdown = std::to_string(down);
-    std::string out = "(" + sls + ", " + srs + ", " + srt2 + ", " + srt1 + ", " + slt2 + ", " + slt1 + ", " + sx + ", " + sb + ", " + sup + ", " + sdown + "),\n";
+    std::string sa = std::to_string(a);
+    std::string sleft = std::to_string(left);
+    std::string out = "(" + sls + ", " + srs + ", " + srt2 + ", " + srt1 + ", " + slt2 + ", " + slt1 + ", " + sx + ", " + sb + ", " + sup + ", " + sdown + sa + sleft + "),\n";
     fprintf(inputs, out.c_str());
     fclose(inputs);
 };
@@ -95,10 +98,10 @@ void Robot::Driver()
     // give the driver time to react lol
     // delay(500); hehe nvm
     // preset the values to false so we don't start off running lol
-    FILE *inputs = fopen("/usd/inputs.txt", "a");
-    std::string uhidk = "Begin Session\n";
-    fprintf(inputs, uhidk.c_str());
-    fclose(inputs);
+    // FILE *inputs = fopen("/usd/inputs.txt", "a");
+    // std::string uhidk = "Begin Session\n";
+    // fprintf(inputs, uhidk.c_str());
+    // fclose(inputs);
     bool throttled = false;
     bool flywheelSpinning = false;
     bool intakeEating = false;
@@ -116,11 +119,18 @@ void Robot::Driver()
         bool flywheelShoot = master.get_digital(DIGITAL_L2);
         bool flywheelSuck = master.get_digital(DIGITAL_L1);
         // recorder(Lp, Rp, intakeIn, intakeOut, flywheelShoot, flywheelSuck, master.get_digital(DIGITAL_X), master.get_digital(DIGITAL_B), master.get_digital(DIGITAL_UP), master.get_digital(DIGITAL_DOWN), master.get_digital(DIGITAL_A), master.get_digital(DIGITAL_LEFT));
-        if (master.get_digital(DIGITAL_LEFT) and master.get_digital(DIGITAL_A)) throttled = !throttled;
+        if (master.get_digital(DIGITAL_LEFT)) 
+        {
+            throttled = true;
+        }
+        else if (master.get_digital(DIGITAL_A))
+        {
+            throttled = false;
+        }
         if (throttled)
         {
-            int Lp = master.get_analog(ANALOG_LEFT_Y) * 0.7;
-            int Rp = master.get_analog(ANALOG_RIGHT_Y) * 0.7;
+            int Lp = Lp * 0.6;
+            int Rp = Rp * 0.6;
         }
         L1.move(Lp);
         L2.move(Lp);
@@ -130,16 +140,17 @@ void Robot::Driver()
         R3.move(Rp);
         // Intake control is simple, no PID, we want constant rotation rate to have stable roller control
         if (intakeIn) 
-        {IntakeRoller = 122;}
+        {IntakeRoller = 125;}
         else if (intakeOut) 
-        {IntakeRoller = -122;}
+        {IntakeRoller = -125;}
         else 
         {IntakeRoller = 0;};
         // Flywheel control is determined entirely by PROS builtin PID, so we just set the target velocity and it does the rest
         if (flywheelShoot) 
-        {Flywheel.move_velocity(36000);}
+        {Flywheel = 126;}
         else if (flywheelSuck)
         {Flywheel = 0;};
+        lcd::print(3, std::to_string(Flywheel.get_actual_velocity()).c_str());
         // else
         // {Flywheel = 0;};
         ckEXPAND();

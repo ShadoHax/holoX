@@ -5,6 +5,7 @@ using namespace pros;
 
 void intialize()
 {
+    lcd::initialize();
     Robot::motorInit();
     Robot::reset();
 }
