@@ -24,6 +24,7 @@ struct Robot
     static ADIEncoder xEncoder;
     static ADIEncoder yEncoder;
     static ADIDigitalOut EXPANSION;
+    static ADIDigitalOut EXPANSION2;
     // Declaring PID instances
     static lsd_koyori rotationPID;
     static lsd_koyori travelPID;

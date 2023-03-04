@@ -20,6 +20,7 @@ Motor Robot::R3(16);
 Motor Robot::IntakeRoller(1);
 Motor Robot::Flywheel(7);
 ADIDigitalOut Robot::EXPANSION(1);
+ADIDigitalOut Robot::EXPANSION2(2);
 // Imu Robot::IMU(9);
 // ADIEncoder Robot::xEncoder(2, 3, false);
 // ADIEncoder Robot::yEncoder(4, 5, false);
@@ -39,19 +40,36 @@ void Robot::motorInit()
     Flywheel.set_reversed(true);
     Flywheel.set_gearing(E_MOTOR_GEARSET_06);
     EXPANSION.set_value(0);
+    EXPANSION2.set_value(0);
 };
 
 // Checks if both release buttons are pressed to launch EXPANSION, and allows for retraction as well
 void Robot::ckEXPAND()
 {
-    if (master.get_digital(DIGITAL_DOWN) and master.get_digital(DIGITAL_B)) EXPANSION.set_value(1);
-    if (master.get_digital(DIGITAL_UP) and master.get_digital(DIGITAL_X)) EXPANSION.set_value(0);
+    if (master.get_digital(DIGITAL_DOWN) and master.get_digital(DIGITAL_B)) 
+    {
+        EXPANSION.set_value(1);
+        EXPANSION2.set_value(1);
+    }
+    if (master.get_digital(DIGITAL_UP) and master.get_digital(DIGITAL_X)) 
+    {
+        EXPANSION.set_value(0);
+        EXPANSION2.set_value(0);
+    }
 }
 
 void Robot::ghostEXPAND(bool down, bool b, bool up, bool x)
 {
-    if (down and b) EXPANSION.set_value(1);
-    if (up and x) EXPANSION.set_value(0);
+    if (down and b) 
+    {
+        EXPANSION.set_value(1);
+        EXPANSION2.set_value(1);
+    }
+    if (up and x)
+    {
+        EXPANSION.set_value(0);
+        EXPANSION2.set_value(0);
+    }
 };
 // Drivercode, feeds driver control directly into the motors
 void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down, bool a, bool left)
@@ -67,7 +85,7 @@ void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool 
     std::string sb = std::to_string(b);
     std::string sup = std::to_string(up);
     std::string sdown = std::to_string(down);
-    std::string out = "(" + sls + ", " + srs + ", " + srt2 + ", " + srt1 + ", " + slt2 + ", " + slt1 + ", " + sx + ", " + sb + ", " + sup + ", " + sdown + "), ";
+    std::string out = "(" + sls + ", " + srs + ", " + srt2 + ", " + srt1 + ", " + slt2 + ", " + slt1 + ", " + sx + ", " + sb + ", " + sup + ", " + sdown + "),\n";
     fprintf(inputs, out.c_str());
     fclose(inputs);
 };
@@ -78,7 +96,7 @@ void Robot::Driver()
     // delay(500); hehe nvm
     // preset the values to false so we don't start off running lol
     FILE *inputs = fopen("/usd/inputs.txt", "a");
-    std::string uhidk = "Begin Session";
+    std::string uhidk = "Begin Session\n";
     fprintf(inputs, uhidk.c_str());
     fclose(inputs);
     bool throttled = false;
@@ -97,7 +115,7 @@ void Robot::Driver()
         bool intakeOut = master.get_digital(DIGITAL_R1);
         bool flywheelShoot = master.get_digital(DIGITAL_L2);
         bool flywheelSuck = master.get_digital(DIGITAL_L1);
-        recorder(Lp, Rp, intakeIn, intakeOut, flywheelShoot, flywheelSuck, master.get_digital(DIGITAL_X), master.get_digital(DIGITAL_B), master.get_digital(DIGITAL_UP), master.get_digital(DIGITAL_DOWN), master.get_digital(DIGITAL_A), master.get_digital(DIGITAL_LEFT));
+        // recorder(Lp, Rp, intakeIn, intakeOut, flywheelShoot, flywheelSuck, master.get_digital(DIGITAL_X), master.get_digital(DIGITAL_B), master.get_digital(DIGITAL_UP), master.get_digital(DIGITAL_DOWN), master.get_digital(DIGITAL_A), master.get_digital(DIGITAL_LEFT));
         if (master.get_digital(DIGITAL_LEFT) and master.get_digital(DIGITAL_A)) throttled = !throttled;
         if (throttled)
         {
@@ -125,7 +143,7 @@ void Robot::Driver()
         // else
         // {Flywheel = 0;};
         ckEXPAND();
-        delay(5);
+        delay(2);
     }
 };
 
@@ -174,11 +192,12 @@ void Robot::ghostdriver(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bo
         if (flywheelShoot) 
         {Flywheel.move_velocity(36000);}
         else if (flywheelSuck)
-        {Flywheel.move_velocity(36000);}
-        else
-        {Flywheel = 0;};
+        // {Flywheel.move_velocity(36000);}
+            {Flywheel = 0;};
+        // else
+        // {Flywheel = 0;};
         ghostEXPAND(down, b, up, x);
-        delay(5);
+        delay(2);
     }
 };
 
