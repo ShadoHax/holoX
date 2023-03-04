@@ -77,6 +77,10 @@ void Robot::Driver()
     // give the driver time to react lol
     // delay(500); hehe nvm
     // preset the values to false so we don't start off running lol
+    FILE *inputs = fopen("/usd/inputs.txt", "a");
+    std::string uhidk = "Begin Session";
+    fprintf(inputs, uhidk.c_str());
+    fclose(inputs);
     bool throttled = false;
     bool flywheelSpinning = false;
     bool intakeEating = false;
