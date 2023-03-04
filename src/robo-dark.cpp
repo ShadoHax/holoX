@@ -1,5 +1,6 @@
 #include "robo-dark.hpp"
 #include <cmath>
+#include <string>
 #include <atomic>
 #include <vector>
 #include <chrono>
@@ -19,9 +20,9 @@ Motor Robot::R3(16);
 Motor Robot::IntakeRoller(1);
 Motor Robot::Flywheel(7);
 ADIDigitalOut Robot::EXPANSION(1);
-Imu Robot::IMU(9);
-ADIEncoder Robot::xEncoder(2, 3, false);
-ADIEncoder Robot::yEncoder(4, 5, false);
+// Imu Robot::IMU(9);
+// ADIEncoder Robot::xEncoder(2, 3, false);
+// ADIEncoder Robot::yEncoder(4, 5, false);
 // Create PID instances for each motor grouping
 lsd_koyori Robot::rotationPID(0.3, 0.5, 0, 100);
 lsd_koyori Robot::travelPID(0.2, 0.5, 0, 100);
@@ -53,15 +54,28 @@ void Robot::ghostEXPAND(bool down, bool b, bool up, bool x)
     if (up and x) EXPANSION.set_value(0);
 };
 // Drivercode, feeds driver control directly into the motors
-void Robot::recorder()
+void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down)
 {
-
+    FILE *inputs = fopen("/usd/inputs.txt", "a");
+    std::string sls = std::to_string(Lstick);
+    std::string srs = std::to_string(Rstick);
+    std::string srt2 = std::to_string(rt2);
+    std::string srt1 = std::to_string(rt1);
+    std::string slt2 = std::to_string(lt2);
+    std::string slt1 = std::to_string(lt1);
+    std::string sx = std::to_string(x);
+    std::string sb = std::to_string(b);
+    std::string sup = std::to_string(up);
+    std::string sdown = std::to_string(down);
+    std::string out = "(" + sls + ", " + srs + ", " + srt2 + ", " + srt1 + ", " + slt2 + ", " + slt1 + ", " + sx + ", " + sb + ", " + sup + ", " + sdown + "), ";
+    fprintf(inputs, out.c_str());
+    fclose(inputs);
 };
 
 void Robot::Driver()
 {
     // give the driver time to react lol
-    delay(500);
+    // delay(500); hehe nvm
     // preset the values to false so we don't start off running lol
     bool throttled = false;
     bool flywheelSpinning = false;
@@ -74,19 +88,17 @@ void Robot::Driver()
         // For tank drive, we just get the values of the left and right joysticks vertical lol;        
         int Lp = master.get_analog(ANALOG_LEFT_Y);
         int Rp = master.get_analog(ANALOG_RIGHT_Y);
-        if (throttled)
-        {
-            int Lp = master.get_analog(ANALOG_LEFT_Y) * 0.7;
-            int Rp = master.get_analog(ANALOG_RIGHT_Y) * 0.7;
-        }
-
         // Intake and Flywheel button check
         bool intakeIn = master.get_digital(DIGITAL_R2);
         bool intakeOut = master.get_digital(DIGITAL_R1);
         bool flywheelShoot = master.get_digital(DIGITAL_L2);
         bool flywheelSuck = master.get_digital(DIGITAL_L1);
-        bool EXPAND = (master.get_digital(DIGITAL_DOWN) and master.get_digital(DIGITAL_B));
-        
+        recorder(Lp, Rp, intakeIn, intakeOut, flywheelShoot, flywheelSuck, master.get_digital(DIGITAL_X), master.get_digital(DIGITAL_B), master.get_digital(DIGITAL_UP), master.get_digital(DIGITAL_DOWN));
+        if (throttled)
+        {
+            int Lp = master.get_analog(ANALOG_LEFT_Y) * 0.7;
+            int Rp = master.get_analog(ANALOG_RIGHT_Y) * 0.7;
+        }
         L1.move(Lp);
         L2.move(Lp);
         L3.move(Lp);
