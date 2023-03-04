@@ -27,7 +27,7 @@ lsd_koyori Robot::rotationPID(0.3, 0.5, 0, 100);
 lsd_koyori Robot::travelPID(0.2, 0.5, 0, 100);
 lsd_koyori Robot::flywheelPID(0.5, 0.8, 0.9, 100);
 
-// Sets
+// Sets some stuff that needs to be set for motors
 void Robot::motorInit()
 {
     IntakeRoller.set_brake_mode(MOTOR_BRAKE_BRAKE);
@@ -47,11 +47,23 @@ void Robot::ckEXPAND()
     if (master.get_digital(DIGITAL_UP) and master.get_digital(DIGITAL_X)) EXPANSION.set_value(0);
 }
 
+void Robot::ghostEXPAND(bool down, bool b, bool up, bool x)
+{
+    if (down and b) EXPANSION.set_value(1);
+    if (up and x) EXPANSION.set_value(0);
+};
+// Drivercode, feeds driver control directly into the motors
+void Robot::recorder()
+{
+
+};
+
 void Robot::Driver()
 {
     // give the driver time to react lol
     delay(500);
     // preset the values to false so we don't start off running lol
+    bool throttled = false;
     bool flywheelSpinning = false;
     bool intakeEating = false;
     int time = 0;
@@ -59,9 +71,15 @@ void Robot::Driver()
         time ++;
         // THIS PART CALLS THE MOVE FUNC WHICH WE DON'T HAVE IMU FOR YET
         // FIX THIS ONCE WE HAVE A WORKING IMU
-        // For tank drive, we just get the values of the left and right joysticks vertical lol;
+        // For tank drive, we just get the values of the left and right joysticks vertical lol;        
         int Lp = master.get_analog(ANALOG_LEFT_Y);
         int Rp = master.get_analog(ANALOG_RIGHT_Y);
+        if (throttled)
+        {
+            int Lp = master.get_analog(ANALOG_LEFT_Y) * 0.7;
+            int Rp = master.get_analog(ANALOG_RIGHT_Y) * 0.7;
+        }
+
         // Intake and Flywheel button check
         bool intakeIn = master.get_digital(DIGITAL_R2);
         bool intakeOut = master.get_digital(DIGITAL_R1);
@@ -91,13 +109,62 @@ void Robot::Driver()
         {Flywheel = 0;};
         ckEXPAND();
         delay(5);
-
-
-
     }
 };
 
+void Robot::ghostdriver(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down)
+{
+    // give the driver time to react lol
+    // preset the values to false so we don't start off running lol
+    bool throttled = false;
+    bool flywheelSpinning = false;
+    bool intakeEating = false;
+    int time = 0;
+    while (true) {
+        time ++;
+        // THIS PART CALLS THE MOVE FUNC WHICH WE DON'T HAVE IMU FOR YET
+        // FIX THIS ONCE WE HAVE A WORKING IMU
+        // For tank drive, we just get the values of the left and right joysticks vertical lol;        
+        int Lp = Lstick;
+        int Rp = Rstick;
+        if (throttled)
+        {
+            int Lp = Lstick * 0.7;
+            int Rp = Rstick * 0.7;
+        }
 
+        // Intake and Flywheel button check
+        bool intakeIn = rt2;
+        bool intakeOut = rt1;
+        bool flywheelShoot = lt2;
+        bool flywheelSuck = lt1;
+        
+        L1.move(Lp);
+        L2.move(Lp);
+        L3.move(Lp);
+        R1.move(Rp);
+        R2.move(Rp);
+        R3.move(Rp);
+        // Intake control is simple, no PID, we want constant rotation rate to have stable roller control
+        if (intakeIn) 
+        {IntakeRoller = 122;}
+        else if (intakeOut) 
+        {IntakeRoller = -122;}
+        else 
+        {IntakeRoller = 0;};
+        // Flywheel control is determined entirely by PROS builtin PID, so we just set the target velocity and it does the rest
+        if (flywheelShoot) 
+        {Flywheel.move_velocity(36000);}
+        else if (flywheelSuck)
+        {Flywheel.move_velocity(36000);}
+        else
+        {Flywheel = 0;};
+        ghostEXPAND(down, b, up, x);
+        delay(5);
+    }
+};
+
+// Set brake type for opcontrol and autonomous
 void Robot::brake(std::string braketype)
 {
     if (braketype == "hold")
@@ -128,3 +195,20 @@ void Robot::brake(std::string braketype)
         R3.set_brake_mode(MOTOR_BRAKE_BRAKE);
     }
 };
+
+// For autonomous, roller function, adjustable based on roller motor gearing
+void Robot::doRoller()
+{
+    IntakeRoller.move_relative(100, 36000); // Change the 100 to change distance for roller
+}
+
+
+
+void Robot::reset()
+{
+    IMU.reset();
+    L1.tare_position();
+    R1.tare_position();
+    xEncoder.reset();
+    yEncoder.reset();
+}
