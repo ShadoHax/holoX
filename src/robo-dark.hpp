@@ -26,6 +26,16 @@ struct Robot
     static lsd_koyori rotationPID;
     static lsd_koyori travelPID;
     static lsd_koyori flywheelPID;
-    ;
+    
+    static void pisswheel();
+    static bool driver;
+    static void Driver();
+    static bool flywheelSpinning;
+    static bool intakeEating;
 
+    // Intialize some default values for motors and shit
+    static void motorInit();
+
+    // Set robot braking type, defaulting to brake
+    static void brake(std::string braketype);
 };
