@@ -22,11 +22,13 @@ struct Robot
     static Imu IMU;
     static ADIEncoder xEncoder;
     static ADIEncoder yEncoder;
+    static ADIDigitalOut EXPANSION;
     // Above declarations are for controller, motors, encoders, and IMU
     static lsd_koyori rotationPID;
     static lsd_koyori travelPID;
     static lsd_koyori flywheelPID;
     
+    static void ckEXPAND();
     static void pisswheel();
     static bool driver;
     static void Driver();

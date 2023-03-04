@@ -18,12 +18,15 @@ Motor Robot::R2(17);
 Motor Robot::R3(16);
 Motor Robot::IntakeRoller(1);
 Motor Robot::Flywheel(7);
+ADIDigitalOut Robot::EXPANSION(1);
+
 // Imu Robot::IMU(9);
 // ADIEncoder Robot::xEncoder(1, 2, false);
 // ADIEncoder Robot::yEncoder(3, 4, false);
 // Above definitions define controller, motors, encoders, and IMU
 lsd_koyori Robot::rotationPID(0.3, 0.5, 0, 100);
 lsd_koyori Robot::travelPID(0.2, 0.5, 0, 100);
+lsd_koyori Robot::flywheelPID(0.5, 0.8, 0.9, 100);
 // lsd_koyori Robot::strafePID(0.5, 0.1, 0, 100);
 
 // flywheel piss
@@ -46,8 +49,20 @@ void Robot::motorInit()
     L2.set_reversed(true);
     L3.set_reversed(true);
     Flywheel.set_reversed(true);
-    Flywheel.set_gearing(E_MOTOR_GEARSET_18);
+    Flywheel.set_gearing(E_MOTOR_GEARSET_06);
+    EXPANSION.set_value(0);
 };
+void Robot::ckEXPAND()
+{
+    if (dom.get_digital(DIGITAL_DOWN) and dom.get_digital(DIGITAL_B))
+    {
+        EXPANSION.set_value(1);
+    }
+    if (dom.get_digital(DIGITAL_UP) and dom.get_digital(DIGITAL_X))
+    {
+        EXPANSION.set_value(0);
+    }
+}
 
 void Robot::Driver()
 {
@@ -91,17 +106,18 @@ void Robot::Driver()
         };
         if (flywheelShoot) 
         {
-            Flywheel.move_velocity(195);
+            Flywheel.move_velocity(36000);
+            // Flywheel = flywheelPID.get_spd();
         }
         else if (flywheelSuck)
         {
-            Flywheel.move_velocity(-195);
+            Flywheel.move_velocity(36000);
         }
         else
         {
             Flywheel = 0;
         };
-
+        ckEXPAND();
         delay(5);
 
 
