@@ -54,7 +54,7 @@ void Robot::ghostEXPAND(bool down, bool b, bool up, bool x)
     if (up and x) EXPANSION.set_value(0);
 };
 // Drivercode, feeds driver control directly into the motors
-void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down)
+void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down, bool a, bool left)
 {
     FILE *inputs = fopen("/usd/inputs.txt", "a");
     std::string sls = std::to_string(Lstick);
@@ -97,7 +97,8 @@ void Robot::Driver()
         bool intakeOut = master.get_digital(DIGITAL_R1);
         bool flywheelShoot = master.get_digital(DIGITAL_L2);
         bool flywheelSuck = master.get_digital(DIGITAL_L1);
-        recorder(Lp, Rp, intakeIn, intakeOut, flywheelShoot, flywheelSuck, master.get_digital(DIGITAL_X), master.get_digital(DIGITAL_B), master.get_digital(DIGITAL_UP), master.get_digital(DIGITAL_DOWN));
+        recorder(Lp, Rp, intakeIn, intakeOut, flywheelShoot, flywheelSuck, master.get_digital(DIGITAL_X), master.get_digital(DIGITAL_B), master.get_digital(DIGITAL_UP), master.get_digital(DIGITAL_DOWN), master.get_digital(DIGITAL_A), master.get_digital(DIGITAL_LEFT));
+        if (master.get_digital(DIGITAL_LEFT) and master.get_digital(DIGITAL_A)) throttled = !throttled;
         if (throttled)
         {
             int Lp = master.get_analog(ANALOG_LEFT_Y) * 0.7;
@@ -128,7 +129,7 @@ void Robot::Driver()
     }
 };
 
-void Robot::ghostdriver(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down)
+void Robot::ghostdriver(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down, bool a, bool left)
 {
     // give the driver time to react lol
     // preset the values to false so we don't start off running lol
@@ -143,6 +144,7 @@ void Robot::ghostdriver(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bo
         // For tank drive, we just get the values of the left and right joysticks vertical lol;        
         int Lp = Lstick;
         int Rp = Rstick;
+        if (left and a) throttled = !throttled;
         if (throttled)
         {
             int Lp = Lstick * 0.7;

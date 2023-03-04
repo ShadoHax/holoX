@@ -40,8 +40,8 @@ struct Robot
 
     // Set robot braking type, defaulting to brake
     static void brake(std::string braketype);
-    static void recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down); //shhhhhh
-    static void ghostdriver(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down);
+    static void recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down, bool a, bool left); //shhhhhh
+    static void ghostdriver(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool lt1, bool x, bool b, bool up, bool down, bool a, bool left);
     static void ghostEXPAND(bool down, bool b, bool up, bool x);
     static void doRoller();
     static void findHeading(std::vector<double> target);
