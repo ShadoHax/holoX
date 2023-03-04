@@ -10,7 +10,8 @@ using namespace pros;
 
 struct Robot 
 {
-    static Controller dom;
+    // Declaring controller, motors, and sensors
+    static Controller master;
     static Motor L1;
     static Motor L2;
     static Motor L3;
@@ -23,13 +24,12 @@ struct Robot
     static ADIEncoder xEncoder;
     static ADIEncoder yEncoder;
     static ADIDigitalOut EXPANSION;
-    // Above declarations are for controller, motors, encoders, and IMU
+    // Declaring PID instances
     static lsd_koyori rotationPID;
     static lsd_koyori travelPID;
     static lsd_koyori flywheelPID;
     
     static void ckEXPAND();
-    static void pisswheel();
     static bool driver;
     static void Driver();
     static bool flywheelSpinning;
