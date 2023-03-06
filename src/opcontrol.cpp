@@ -5,6 +5,6 @@ using namespace pros;
 
 void opcontrol() {
     Robot::motorInit();
-    Robot::brake("hold");
+    Robot::brake("brake");
     Robot::Driver();
 };

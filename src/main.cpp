@@ -6,7 +6,7 @@
  * When this callback is fired, it will toggle line 2 of the LCD text between
  * "I was pressed!" and nothing.
  */
-void on_center_button() {
+// void on_center_button() {
 	// static bool pressed = false;
 	// pressed = !pressed;
 	// if (pressed) {
@@ -14,7 +14,7 @@ void on_center_button() {
 	// } else {
 	// 	pros::lcd::clear_line(2);
 	// }
-}
+// }
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -34,7 +34,7 @@ void on_center_button() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+// void disabled() {}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -58,7 +58,7 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+// void autonomous() {}
 
 /**
  * Runs the operator control code. This function will be started in its own task

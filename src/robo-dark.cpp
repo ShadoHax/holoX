@@ -93,6 +93,18 @@ void Robot::recorder(int Lstick, int Rstick, bool rt2, bool rt1, bool lt2, bool 
     fclose(inputs);
 };
 
+// FILE *inputs = fopen("/usd/inputs.txt", "a");
+void Robot::throttlelog(bool throttle, double Lpi, double Rpi)
+{
+    FILE *inputs = fopen("/usd/inputs.txt", "a");
+    std::string s = std::to_string(throttle);
+    std::string sl = std::to_string(Lpi);
+    std::string sr = std::to_string(Rpi);
+    std::string out = "(" + s + ", " + sl + ", " + sr + "),\n";
+    fprintf(inputs, out.c_str());
+    fclose(inputs);
+};
+
 void Robot::Driver()
 {
     // give the driver time to react lol
@@ -111,8 +123,8 @@ void Robot::Driver()
         // THIS PART CALLS THE MOVE FUNC WHICH WE DON'T HAVE IMU FOR YET
         // FIX THIS ONCE WE HAVE A WORKING IMU
         // For tank drive, we just get the values of the left and right joysticks vertical lol;        
-        int Lp = master.get_analog(ANALOG_LEFT_Y);
-        int Rp = master.get_analog(ANALOG_RIGHT_Y);
+        double Lp = master.get_analog(ANALOG_LEFT_Y);
+        double Rp = master.get_analog(ANALOG_RIGHT_Y);
         // Intake and Flywheel button check
         bool intakeIn = master.get_digital(DIGITAL_R2);
         bool intakeOut = master.get_digital(DIGITAL_R1);
@@ -123,9 +135,10 @@ void Robot::Driver()
         else if (master.get_digital(DIGITAL_A)) throttled = false;
         if (throttled)
         {
-            int Lp = Lp * 0.6;
-            int Rp = Rp * 0.6;
+            double Lp = Lp * 0.6;
+            double Rp = Rp * 0.6;
         }
+        // throttlelog(throttled, Lp, Rp);
         L1.move(Lp);
         L2.move(Lp);
         L3.move(Lp);
@@ -236,7 +249,22 @@ void Robot::brake(std::string braketype)
 // For autonomous, roller function, adjustable based on roller motor gearing
 void Robot::doRoller()
 {
-    IntakeRoller.move_relative(100, 36000); // Change the 100 to change distance for roller
+    // L1 = -127;
+    // L2 = -127;
+    // L3 = -127;
+    // R1 = -127;
+    // R2 = -127;
+    // R3 = -127;
+    // IntakeRoller = 127;
+
+    L1.move_relative(-100, 100);
+    L2.move_relative(-100, 100);
+    L3.move_relative(-100, 100);
+    R1.move_relative(-100, 100);
+    R2.move_relative(-100, 100);
+    R3.move_relative(-100, 100);
+    delay(1000);
+    IntakeRoller.move_relative(1400, 50); // Change the 100 to change distance for roller
 }
 
 

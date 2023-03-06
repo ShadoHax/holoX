@@ -35,7 +35,7 @@ struct Robot
     static void Driver();
     static bool flywheelSpinning;
     static bool intakeEating;
-
+    static void throttlelog(bool throttle, double Lpi, double Rpi);
     // Intialize some default values for motors and shit
     static void motorInit();
 
